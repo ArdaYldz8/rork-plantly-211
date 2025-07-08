@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, TouchableOpacity, View, Text, Animated } from 'react-native';
 import { Camera } from 'lucide-react-native';
-import Colors from '@/constants/colors';
 
 interface CameraButtonProps {
   onPress: () => void;
@@ -36,7 +35,7 @@ export default function CameraButton({ onPress, isLoading = false }: CameraButto
   return (
     <View style={styles.container}>
       <TouchableOpacity 
-        style={styles.button}
+        style={[styles.button, isLoading && styles.buttonLoading]}
         onPress={onPress}
         disabled={isLoading}
         activeOpacity={0.8}
@@ -49,7 +48,7 @@ export default function CameraButton({ onPress, isLoading = false }: CameraButto
             ]} 
           />
         ) : (
-          <Camera size={40} color={Colors.dark.text} />
+          <Camera size={40} color="#FFFFFF" />
         )}
       </TouchableOpacity>
       <Text style={styles.text}>Fotoğraf Çek / Seç</Text>
@@ -65,10 +64,10 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: Colors.dark.primary,
+    backgroundColor: '#00c853',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: Colors.dark.primary,
+    shadowColor: '#00c853',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -77,8 +76,11 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  buttonLoading: {
+    opacity: 0.7,
+  },
   text: {
-    color: Colors.dark.text,
+    color: '#FFFFFF',
     marginTop: 16,
     fontSize: 16,
     fontWeight: '500',
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 3,
-    borderColor: Colors.dark.text,
+    borderColor: '#FFFFFF',
     borderTopColor: 'transparent',
     borderLeftColor: 'transparent',
   },

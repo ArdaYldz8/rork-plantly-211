@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, View, Text, SafeAreaView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { useCameraPermissions } from 'expo-camera';
 import { identifyPlant } from '@/lib/api';
 import CameraButton from '@/components/CameraButton';
 import ErrorModal from '@/components/ErrorModal';
-import Colors from '@/constants/colors';
 
 export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorVisible, setErrorVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [errorMessage, setErrorMessage] = useState<string>();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   const handleImageSelection = async () => {
     try {
-      // Check camera permissions first
+      // Request camera permissions if needed
       if (!cameraPermission?.granted) {
         const permission = await requestCameraPermission();
         if (!permission.granted) {
-          setErrorMessage("Kamera izni verilmedi. Lütfen ayarlardan izin verin.");
+          setErrorMessage("Kamera izni gerekli. Lütfen ayarlardan izin verin.");
           setErrorVisible(true);
           return;
         }
       }
 
-      // Show image picker
+      // Launch image picker
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -35,11 +34,12 @@ export default function HomeScreen() {
         base64: true,
       });
 
-      if (!result.canceled && result.assets && result.assets[0].base64) {
+      if (!result.canceled && result.assets?.[0]?.base64) {
         await processImage(result.assets[0].base64);
       }
     } catch (error) {
-      console.error('Error selecting image:', error);
+      console.error('Image selection error:', error);
+      setErrorMessage("Fotoğraf seçilirken hata oluştu.");
       setErrorVisible(true);
     }
   };
@@ -49,18 +49,18 @@ export default function HomeScreen() {
     try {
       const result = await identifyPlant(base64);
       
-      // Navigate to result screen with the identification data
       router.push({
         pathname: '/result',
         params: {
           commonName: result.species.common_name_tr,
           scientificName: result.species.scientific_name,
-          confidence: result.confidence,
+          confidence: result.confidence.toString(),
           imageBase64: base64,
         },
       });
     } catch (error) {
-      console.error('Error processing image:', error);
+      console.error('Plant identification error:', error);
+      setErrorMessage("Üzgünüz, işlem gerçekleştirilemedi. Lütfen daha sonra tekrar deneyin.");
       setErrorVisible(true);
     } finally {
       setIsLoading(false);
@@ -68,12 +68,15 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Bitki Tanıma</Text>
-        <Text style={styles.subtitle}>
-          Tanımlamak istediğiniz bitkinin fotoğrafını çekin veya galeriden seçin
-        </Text>
+        <View style={styles.header}>
+          <Text style={styles.emoji}>🌿</Text>
+          <Text style={styles.title}>Bitki Tanıma</Text>
+          <Text style={styles.subtitle}>
+            Tanımlamak istediğiniz bitkinin fotoğrafını çekin veya galeriden seçin
+          </Text>
+        </View>
         
         <View style={styles.buttonContainer}>
           <CameraButton onPress={handleImageSelection} isLoading={isLoading} />
@@ -85,36 +88,44 @@ export default function HomeScreen() {
         onDismiss={() => setErrorVisible(false)}
         message={errorMessage}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.dark.background,
+    backgroundColor: '#111111',
   },
   content: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
+  header: {
+    alignItems: 'center',
+    marginBottom: 60,
+  },
+  emoji: {
+    fontSize: 64,
+    marginBottom: 20,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: Colors.dark.text,
-    marginBottom: 12,
+    color: '#FFFFFF',
+    marginBottom: 16,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: Colors.dark.subtext,
+    color: '#AAAAAA',
     textAlign: 'center',
-    marginBottom: 60,
     lineHeight: 24,
+    maxWidth: 280,
   },
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 40,
   },
 });

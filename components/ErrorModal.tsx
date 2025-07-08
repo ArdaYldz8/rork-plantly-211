@@ -1,11 +1,12 @@
 import React from 'react';
 import { Modal, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { ErrorModalProps } from '../types';
-import { Colors } from '../constants/colors';
 
-/**
- * Error modal component for displaying error messages
- */
+interface ErrorModalProps {
+  visible: boolean;
+  onDismiss: () => void;
+  message?: string;
+}
+
 export default function ErrorModal({ visible, onDismiss, message }: ErrorModalProps) {
   const defaultMessage = "Üzgünüz, işlem gerçekleştirilemedi. Lütfen daha sonra tekrar deneyin.";
   
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: Colors.card,
+    backgroundColor: '#1E1E1E',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -57,12 +58,12 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 20,
     textAlign: 'center',
-    color: Colors.text,
+    color: '#FFFFFF',
     fontSize: 16,
     lineHeight: 24,
   },
   button: {
-    backgroundColor: Colors.primary,
+    backgroundColor: '#00c853',
     borderRadius: 8,
     padding: 12,
     elevation: 2,
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: Colors.text,
+    color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
   },
