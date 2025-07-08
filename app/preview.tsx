@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Image, SafeAreaView, ScrollView } from 'react-native';
-import { Button, Text, ActivityIndicator } from 'react-native-paper';
+import { StyleSheet, View, Image, SafeAreaView, ScrollView, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { identifyPlant } from '@/lib/api';
 import ErrorModal from '@/components/ErrorModal';
@@ -69,29 +68,27 @@ export default function PreviewScreen() {
         />
         
         <View style={styles.buttonContainer}>
-          <Button
-            mode="contained"
+          <TouchableOpacity
+            style={[styles.button, styles.primaryButton, isLoading && styles.disabledButton]}
             onPress={handleIdentify}
             disabled={isLoading}
-            style={styles.identifyButton}
-            contentStyle={styles.buttonContent}
+            activeOpacity={0.8}
           >
             {isLoading ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              "Tanımla"
+              <Text style={styles.primaryButtonText}>Tanımla</Text>
             )}
-          </Button>
+          </TouchableOpacity>
           
-          <Button
-            mode="text"
+          <TouchableOpacity
+            style={[styles.button, styles.secondaryButton]}
             onPress={handleChangePhoto}
             disabled={isLoading}
-            style={styles.changeButton}
-            labelStyle={styles.changeButtonLabel}
+            activeOpacity={0.8}
           >
-            Foto Değiştir
-          </Button>
+            <Text style={styles.secondaryButtonText}>Foto Değiştir</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -125,17 +122,32 @@ const styles = StyleSheet.create({
   buttonContainer: {
     gap: 16,
   },
-  identifyButton: {
+  button: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
+  },
+  primaryButton: {
     backgroundColor: '#00c853',
   },
-  buttonContent: {
-    paddingVertical: 8,
-  },
-  changeButton: {
+  secondaryButton: {
+    backgroundColor: 'transparent',
     marginTop: 8,
   },
-  changeButtonLabel: {
+  disabledButton: {
+    opacity: 0.6,
+  },
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  secondaryButtonText: {
     color: '#AAAAAA',
+    fontSize: 16,
   },
   errorContainer: {
     flex: 1,

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
-import { Card, IconButton, ActivityIndicator } from 'react-native-paper';
+import { StyleSheet, View, Text, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Leaf } from 'lucide-react-native';
@@ -60,18 +59,17 @@ export default function HomeScreen() {
           </Text>
         </View>
         
-        <Card style={styles.card} elevation={2}>
-          <Card.Content style={styles.cardContent}>
-            <IconButton
-              icon={() => <Leaf size={48} color="#00c853" />}
-              size={80}
-              onPress={handleImageSelection}
-              disabled={isLoading}
-              style={styles.iconButton}
-            />
+        <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleImageSelection}
+            disabled={isLoading}
+            activeOpacity={0.8}
+          >
+            <Leaf size={48} color="#00c853" />
             <Text style={styles.buttonLabel}>Fotoğraf Seç</Text>
-          </Card.Content>
-        </Card>
+          </TouchableOpacity>
+        </View>
 
         {isLoading && (
           <View style={styles.loadingOverlay}>
@@ -125,14 +123,22 @@ const styles = StyleSheet.create({
   card: {
     width: '80%',
     backgroundColor: '#1E1E1E',
-  },
-  cardContent: {
+    borderRadius: 12,
+    padding: 32,
     alignItems: 'center',
-    paddingVertical: 32,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  iconButton: {
-    backgroundColor: 'transparent',
-    marginBottom: 16,
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
   },
   buttonLabel: {
     fontSize: 18,

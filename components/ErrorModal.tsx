@@ -1,6 +1,5 @@
 import React from 'react';
-import { Modal, StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Modal, StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 
 interface ErrorModalProps {
   visible: boolean;
@@ -29,14 +28,13 @@ export default function ErrorModal({ visible, onDismiss, type = 'GENERAL', messa
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText}>{errorMessage}</Text>
-          <Button
-            mode="contained"
-            onPress={onDismiss}
+          <TouchableOpacity
             style={styles.button}
-            contentStyle={styles.buttonContent}
+            onPress={onDismiss}
+            activeOpacity={0.8}
           >
-            Tamam
-          </Button>
+            <Text style={styles.buttonText}>Tamam</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -75,9 +73,15 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#00c853',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     minWidth: 120,
+    alignItems: 'center',
   },
-  buttonContent: {
-    paddingVertical: 4,
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

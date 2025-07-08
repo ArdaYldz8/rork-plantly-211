@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Image, SafeAreaView, ScrollView } from 'react-native';
-import { Card, Button, Text, ProgressBar } from 'react-native-paper';
+import { StyleSheet, View, Image, SafeAreaView, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 
 export default function ResultScreen() {
@@ -20,42 +19,43 @@ export default function ResultScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-        <Card style={styles.card} elevation={2}>
-          <Card.Content style={styles.cardContent}>
-            {imageBase64 && (
-              <Image
-                source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
-                style={styles.thumbnail}
-                resizeMode="cover"
-              />
-            )}
+        <View style={styles.card}>
+          {imageBase64 && (
+            <Image
+              source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
+              style={styles.thumbnail}
+              resizeMode="cover"
+            />
+          )}
+          
+          <View style={styles.resultInfo}>
+            <Text style={styles.commonName}>{commonName}</Text>
+            <Text style={styles.scientificName}>{scientificName}</Text>
             
-            <View style={styles.resultInfo}>
-              <Text style={styles.commonName}>{commonName}</Text>
-              <Text style={styles.scientificName}>{scientificName}</Text>
-              
-              <View style={styles.confidenceContainer}>
-                <Text style={styles.confidenceLabel}>Güven Oranı</Text>
-                <ProgressBar 
-                  progress={confidence} 
-                  color="#00c853"
-                  style={styles.progressBar}
-                />
-                <Text style={styles.confidenceText}>%{confidencePercentage}</Text>
+            <View style={styles.confidenceContainer}>
+              <Text style={styles.confidenceLabel}>Güven Oranı</Text>
+              <View style={styles.progressBarContainer}>
+                <View style={styles.progressBarBackground}>
+                  <View 
+                    style={[
+                      styles.progressBarFill, 
+                      { width: `${confidencePercentage}%` }
+                    ]} 
+                  />
+                </View>
               </View>
+              <Text style={styles.confidenceText}>%{confidencePercentage}</Text>
             </View>
-          </Card.Content>
-        </Card>
+          </View>
+        </View>
         
-        <Button
-          mode="outlined"
-          onPress={handleNewPhoto}
+        <TouchableOpacity
           style={styles.newPhotoButton}
-          contentStyle={styles.buttonContent}
-          labelStyle={styles.buttonLabel}
+          onPress={handleNewPhoto}
+          activeOpacity={0.8}
         >
-          Yeni Fotoğraf
-        </Button>
+          <Text style={styles.newPhotoButtonText}>Yeni Fotoğraf</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -75,10 +75,17 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#1E1E1E',
-    marginBottom: 24,
-  },
-  cardContent: {
+    borderRadius: 12,
     padding: 24,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 2,
   },
   thumbnail: {
     width: '100%',
@@ -113,12 +120,21 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: '500',
   },
-  progressBar: {
+  progressBarContainer: {
+    width: '100%',
+    marginBottom: 8,
+  },
+  progressBarBackground: {
     width: '100%',
     height: 8,
     borderRadius: 4,
     backgroundColor: '#333333',
-    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#00c853',
+    borderRadius: 4,
   },
   confidenceText: {
     color: '#00c853',
@@ -126,13 +142,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   newPhotoButton: {
+    borderWidth: 1,
     borderColor: '#00c853',
+    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonContent: {
-    paddingVertical: 8,
-  },
-  buttonLabel: {
+  newPhotoButtonText: {
     color: '#00c853',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
