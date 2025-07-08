@@ -1,66 +1,48 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, SafeAreaView, Platform } from 'react-native';
+import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
+import { Card, IconButton, ActivityIndicator } from 'react-native-paper';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { useCameraPermissions } from 'expo-camera';
-import { identifyPlant } from '@/lib/api';
-import CameraButton from '@/components/CameraButton';
+import { Leaf } from 'lucide-react-native';
 import ErrorModal from '@/components/ErrorModal';
 
 export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorVisible, setErrorVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>();
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [errorType, setErrorType] = useState<'NETWORK' | 'PERMISSION' | 'GENERAL'>('GENERAL');
 
   const handleImageSelection = async () => {
     try {
-      // Request camera permissions if needed
-      if (!cameraPermission?.granted) {
-        const permission = await requestCameraPermission();
-        if (!permission.granted) {
-          setErrorMessage("Kamera izni gerekli. Lütfen ayarlardan izin verin.");
-          setErrorVisible(true);
-          return;
-        }
+      setIsLoading(true);
+
+      // Request media library permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorType('PERMISSION');
+        setErrorVisible(true);
+        return;
       }
 
       // Launch image picker
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 5],
         quality: 0.8,
         base64: true,
       });
 
       if (!result.canceled && result.assets?.[0]?.base64) {
-        await processImage(result.assets[0].base64);
+        router.push({
+          pathname: '/preview',
+          params: {
+            imageBase64: result.assets[0].base64,
+          },
+        });
       }
     } catch (error) {
       console.error('Image selection error:', error);
-      setErrorMessage("Fotoğraf seçilirken hata oluştu.");
-      setErrorVisible(true);
-    }
-  };
-
-  const processImage = async (base64: string) => {
-    setIsLoading(true);
-    try {
-      const result = await identifyPlant(base64);
-      
-      router.push({
-        pathname: '/result',
-        params: {
-          commonName: result.species.common_name_tr,
-          scientificName: result.species.scientific_name,
-          confidence: result.confidence.toString(),
-          imageBase64: base64,
-        },
-      });
-    } catch (error) {
-      console.error('Plant identification error:', error);
-      setErrorMessage("Üzgünüz, işlem gerçekleştirilemedi. Lütfen daha sonra tekrar deneyin.");
+      setErrorType('GENERAL');
       setErrorVisible(true);
     } finally {
       setIsLoading(false);
@@ -74,19 +56,34 @@ export default function HomeScreen() {
           <Text style={styles.emoji}>🌿</Text>
           <Text style={styles.title}>Bitki Tanıma</Text>
           <Text style={styles.subtitle}>
-            Tanımlamak istediğiniz bitkinin fotoğrafını çekin veya galeriden seçin
+            Tanımlamak istediğiniz bitkinin fotoğrafını galeriden seçin
           </Text>
         </View>
         
-        <View style={styles.buttonContainer}>
-          <CameraButton onPress={handleImageSelection} isLoading={isLoading} />
-        </View>
+        <Card style={styles.card} elevation={2}>
+          <Card.Content style={styles.cardContent}>
+            <IconButton
+              icon={() => <Leaf size={48} color="#00c853" />}
+              size={80}
+              onPress={handleImageSelection}
+              disabled={isLoading}
+              style={styles.iconButton}
+            />
+            <Text style={styles.buttonLabel}>Fotoğraf Seç</Text>
+          </Card.Content>
+        </Card>
+
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#00c853" />
+          </View>
+        )}
       </View>
 
       <ErrorModal 
         visible={errorVisible} 
         onDismiss={() => setErrorVisible(false)}
-        message={errorMessage}
+        type={errorType}
       />
     </SafeAreaView>
   );
@@ -105,7 +102,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 60,
+    marginBottom: 40,
   },
   emoji: {
     fontSize: 64,
@@ -125,7 +122,31 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     maxWidth: 280,
   },
-  buttonContainer: {
-    marginTop: 40,
+  card: {
+    width: '80%',
+    backgroundColor: '#1E1E1E',
+  },
+  cardContent: {
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  iconButton: {
+    backgroundColor: 'transparent',
+    marginBottom: 16,
+  },
+  buttonLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

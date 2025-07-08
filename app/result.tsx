@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Image, SafeAreaView, ScrollView } from 'react-native';
+import { Card, Button, Text, ProgressBar } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ArrowLeft } from 'lucide-react-native';
 
 export default function ResultScreen() {
   const params = useLocalSearchParams();
@@ -14,36 +14,48 @@ export default function ResultScreen() {
   const confidencePercentage = Math.round(confidence * 100);
 
   const handleNewPhoto = () => {
-    router.back();
+    router.navigate('/');
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-        {imageBase64 && (
-          <Image
-            source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        )}
-        
-        <View style={styles.resultCard}>
-          <Text style={styles.commonName}>{commonName}</Text>
-          <Text style={styles.scientificName}>{scientificName}</Text>
-          
-          <View style={styles.confidenceContainer}>
-            <View style={styles.confidenceBarBackground}>
-              <View style={[styles.confidenceBar, { width: `${confidencePercentage}%` }]} />
+        <Card style={styles.card} elevation={2}>
+          <Card.Content style={styles.cardContent}>
+            {imageBase64 && (
+              <Image
+                source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
+                style={styles.thumbnail}
+                resizeMode="cover"
+              />
+            )}
+            
+            <View style={styles.resultInfo}>
+              <Text style={styles.commonName}>{commonName}</Text>
+              <Text style={styles.scientificName}>{scientificName}</Text>
+              
+              <View style={styles.confidenceContainer}>
+                <Text style={styles.confidenceLabel}>Güven Oranı</Text>
+                <ProgressBar 
+                  progress={confidence} 
+                  color="#00c853"
+                  style={styles.progressBar}
+                />
+                <Text style={styles.confidenceText}>%{confidencePercentage}</Text>
+              </View>
             </View>
-            <Text style={styles.confidenceText}>%{confidencePercentage} güven</Text>
-          </View>
-          
-          <TouchableOpacity style={styles.button} onPress={handleNewPhoto}>
-            <ArrowLeft size={20} color="#FFFFFF" />
-            <Text style={styles.buttonText}>Yeni Fotoğraf</Text>
-          </TouchableOpacity>
-        </View>
+          </Card.Content>
+        </Card>
+        
+        <Button
+          mode="outlined"
+          onPress={handleNewPhoto}
+          style={styles.newPhotoButton}
+          contentStyle={styles.buttonContent}
+          labelStyle={styles.buttonLabel}
+        >
+          Yeni Fotoğraf
+        </Button>
       </ScrollView>
     </SafeAreaView>
   );
@@ -61,71 +73,66 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
-  image: {
-    width: '100%',
-    height: 300,
-    borderRadius: 16,
-    marginBottom: 20,
-  },
-  resultCard: {
+  card: {
     backgroundColor: '#1E1E1E',
-    borderRadius: 16,
+    marginBottom: 24,
+  },
+  cardContent: {
     padding: 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+  },
+  thumbnail: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 24,
+  },
+  resultInfo: {
+    alignItems: 'center',
   },
   commonName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 8,
+    textAlign: 'center',
   },
   scientificName: {
     fontSize: 16,
     fontStyle: 'italic',
     color: '#AAAAAA',
-    marginBottom: 24,
-  },
-  confidenceContainer: {
-    marginBottom: 24,
-  },
-  confidenceBarBackground: {
-    height: 8,
-    backgroundColor: '#333333',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  confidenceBar: {
-    height: '100%',
-    backgroundColor: '#00c853',
-    borderRadius: 4,
-  },
-  confidenceText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
+    marginBottom: 32,
     textAlign: 'center',
   },
-  button: {
-    backgroundColor: '#00c853',
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'center',
+  confidenceContainer: {
+    width: '100%',
     alignItems: 'center',
-    marginTop: 8,
   },
-  buttonText: {
+  confidenceLabel: {
     color: '#FFFFFF',
+    fontSize: 14,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  progressBar: {
+    width: '100%',
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#333333',
+    marginBottom: 8,
+  },
+  confidenceText: {
+    color: '#00c853',
     fontWeight: 'bold',
-    marginLeft: 8,
-    fontSize: 16,
+    fontSize: 18,
+  },
+  newPhotoButton: {
+    borderColor: '#00c853',
+  },
+  buttonContent: {
+    paddingVertical: 8,
+  },
+  buttonLabel: {
+    color: '#00c853',
+    fontWeight: 'bold',
   },
 });

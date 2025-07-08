@@ -1,14 +1,23 @@
 import React from 'react';
-import { Modal, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { Modal, StyleSheet, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
 
 interface ErrorModalProps {
   visible: boolean;
   onDismiss: () => void;
+  type?: 'NETWORK' | 'RATE_LIMIT' | 'PERMISSION' | 'GENERAL';
   message?: string;
 }
 
-export default function ErrorModal({ visible, onDismiss, message }: ErrorModalProps) {
-  const defaultMessage = "Üzgünüz, işlem gerçekleştirilemedi. Lütfen daha sonra tekrar deneyin.";
+const ERROR_MESSAGES = {
+  NETWORK: "Bağlantı hatası. İnternet bağlantınızı kontrol edin.",
+  RATE_LIMIT: "Günlük limit aşıldı. Lütfen daha sonra tekrar deneyin.",
+  PERMISSION: "Galeri erişim izni gerekli. Lütfen ayarlardan izin verin.",
+  GENERAL: "Üzgünüz, işlem gerçekleştirilemedi. Lütfen daha sonra tekrar deneyin.",
+};
+
+export default function ErrorModal({ visible, onDismiss, type = 'GENERAL', message }: ErrorModalProps) {
+  const errorMessage = message || ERROR_MESSAGES[type];
   
   return (
     <Modal
@@ -19,13 +28,15 @@ export default function ErrorModal({ visible, onDismiss, message }: ErrorModalPr
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.modalText}>{message || defaultMessage}</Text>
-          <TouchableOpacity
-            style={styles.button}
+          <Text style={styles.modalText}>{errorMessage}</Text>
+          <Button
+            mode="contained"
             onPress={onDismiss}
+            style={styles.button}
+            contentStyle={styles.buttonContent}
           >
-            <Text style={styles.buttonText}>Tamam</Text>
-          </TouchableOpacity>
+            Tamam
+          </Button>
         </View>
       </View>
     </Modal>
@@ -64,15 +75,9 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#00c853',
-    borderRadius: 8,
-    padding: 12,
-    elevation: 2,
     minWidth: 120,
-    alignItems: 'center',
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    textAlign: 'center',
+  buttonContent: {
+    paddingVertical: 4,
   },
 });
